@@ -9,7 +9,7 @@ print("RUNNING REALTIME SCRIPT")
 # ----------------------------
 # LOAD TRAINED MODEL
 # ----------------------------
-model = joblib.load("gesture_mlp_model.pkl")
+model = joblib.load("model/gesture_mlp_model.pkl")
 
 # Gesture label mapping
 gesture_labels = {

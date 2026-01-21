@@ -1,0 +1,14 @@
+=== Macro Average ===
+Precision: 0.8591
+Recall   : 0.8340
+F1-score : 0.8317
+
+=== Micro Average ===
+Precision: 0.8340
+Recall   : 0.8340
+F1-score : 0.8340
+
+=== Weighted Average ===
+Precision: 0.8591
+Recall   : 0.8340
+F1-score : 0.8317

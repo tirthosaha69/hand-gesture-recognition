@@ -52,8 +52,8 @@ def normalize_sample(raw_vector):
 # -----------------------------
 # PROCESS ALL SAMPLES
 # -----------------------------
-dataset_dir = "dataset/participant_1"
-output_dir = "normalized/participant_1"
+dataset_dir = "dataset/participant_2"
+output_dir = "normalized/participant_2"
 os.makedirs(output_dir, exist_ok=True)
 
 for gesture_dir in os.listdir(dataset_dir):

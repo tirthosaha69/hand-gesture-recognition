@@ -1,6 +1,7 @@
+flask==2.3.0
+flask-cors==4.0.0
 joblib==1.5.2
 mediapipe==0.10.21
 numpy==2.4.1
-opencv_contrib_python==4.11.0.86
-opencv_python==4.8.1.78
-scikit_learn==1.8.0
+opencv-contrib-python==4.11.0.86
+scikit-learn==1.8.0

@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture Recognition System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #e4e4e7;
+            min-height: 100vh;
+            padding: 24px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 6px;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: #334155;
+        }
+
+        .video-container {
+            grid-row: 1 / 3;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 16px;
+            border: 1px solid #1e293b;
+        }
+
+        #videoStream {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            color: #10b981;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.813rem;
+            font-weight: 500;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 18px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            background: #1e293b;
+            color: #e4e4e7;
+        }
+
+        .btn:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn i {
+            font-size: 0.875rem;
+        }
+
+        .status-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .status-item {
+            background: #0f172a;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-value i {
+            font-size: 1.25rem;
+            color: #10b981;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .stat-box {
+            background: #0a0e27;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #1e293b;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .stat-label {
+            font-size: 0.688rem;
+            color: #64748b;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .history-list {
+            max-height: 340px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .history-item {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #1e293b;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            border-color: #334155;
+            background: #1e293b;
+        }
+
+        .gesture-name {
+            font-weight: 500;
+            color: #e4e4e7;
+            font-size: 0.875rem;
+        }
+
+        .gesture-time {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .gesture-confidence {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .gesture-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .gesture-item {
+            background: #0f172a;
+            padding: 12px 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #94a3b8;
+            border: 1px solid #1e293b;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .gesture-item:hover {
+            background: #1e293b;
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .card-title {
+            font-size: 0.938rem;
+            font-weight: 600;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.025em;
+        }
+
+        .card-title i {
+            color: #10b981;
+            font-size: 0.875rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 1.5s ease-in-out infinite;
+            margin-left: auto;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .chart-container {
+            margin-top: 16px;
+            height: 240px;
+            position: relative;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            min-height: 5px;
+        }
+
+        .bar:hover {
+            background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.688rem;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #475569;
+            padding: 32px 20px;
+            font-size: 0.875rem;
+        }
+
+        .system-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .system-badge i {
+            font-size: 0.688rem;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .video-container {
+                grid-row: auto;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gesture-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gesture-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Hand Gesture Recognition System</h1>
+            <p>Real-time detection and analysis powered by Machine Learning</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Video Feed -->
+            <div class="card video-container">
+                <div class="card-title">
+                    <i class="fas fa-video"></i>
+                    Live Feed
+                    <span class="loading"></span>
+                </div>
+                <div class="video-wrapper">
+                    <img id="videoStream" src="/video_feed" alt="Video Stream">
+                    <div class="video-overlay">
+                        <div id="liveGesture">Initializing...</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn" onclick="toggleDetection()">
+                        <i class="fas fa-pause"></i>
+                        <span id="toggleText">Pause</span>
+                    </button>
+                    <button class="btn" onclick="takeSnapshot()">
+                        <i class="fas fa-camera"></i>
+                        Snapshot
+                    </button>
+                    <button class="btn" onclick="clearHistory()">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Current Status -->
+            <div class="card status-card">
+                <div class="card-title">
+                    <i class="fas fa-signal"></i>
+                    Detection Status
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Current Gesture</div>
+                    <div class="status-value">
+                        <i class="fas fa-hand-paper"></i>
+                        <span id="currentGesture">Waiting...</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">Confidence</div>
+                    <div class="status-value">
+                        <span id="confidenceValue">0%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">System Metrics</div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="fpsValue">0</div>
+                            <div class="stat-label">FPS</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="totalDetections">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="uniqueGestures">0</div>
+                            <div class="stat-label">Unique</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-history"></i>
+                    Detection History
+                </div>
+                <div class="history-list" id="historyList">
+                    <div class="empty-state">
+                        No detections recorded
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-grid">
+            <!-- Gesture Library -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-grip-horizontal"></i>
+                    Gesture Library
+                    <span class="system-badge"><i class="fas fa-check-circle"></i> 25 Gestures</span>
+                </div>
+                <div class="gesture-grid" id="gestureLibrary">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Top Gestures Chart -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-chart-bar"></i>
+                    Most Detected Gestures
+                </div>
+                <div class="chart-container">
+                    <div class="bar-chart" id="topGesturesChart">
+                        <div class="empty-state">No data available</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let detectionActive = true;
+        let gestureLabels = {};
+
+        // Load gesture library
+        async function loadGestureLibrary() {
+            try {
+                const response = await fetch('/api/gesture_list');
+                gestureLabels = await response.json();
+
+                const container = document.getElementById('gestureLibrary');
+                container.innerHTML = '';
+
+                for (const [id, name] of Object.entries(gestureLabels)) {
+                    const item = document.createElement('div');
+                    item.className = 'gesture-item';
+                    item.textContent = name;
+                    item.title = `Gesture ID: ${id}`;
+                    container.appendChild(item);
+                }
+            } catch (error) {
+                console.error('Error loading gestures:', error);
+            }
+        }
+
+        // Update current gesture
+        async function updateCurrentGesture() {
+            try {
+                const response = await fetch('/api/current_gesture');
+                const data = await response.json();
+
+                document.getElementById('currentGesture').textContent = data.gesture;
+                document.getElementById('liveGesture').textContent = `${data.gesture} • ${data.confidence.toFixed(1)}%`;
+                document.getElementById('confidenceValue').textContent = `${data.confidence.toFixed(1)}%`;
+                document.getElementById('confidenceFill').style.width = `${data.confidence}%`;
+                document.getElementById('fpsValue').textContent = data.fps.toFixed(1);
+            } catch (error) {
+                console.error('Error updating gesture:', error);
+            }
+        }
+
+        // Update history
+        async function updateHistory() {
+            try {
+                const response = await fetch('/api/gesture_history');
+                const history = await response.json();
+
+                const container = document.getElementById('historyList');
+
+                if (history.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No detections recorded</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                // Show last 10 detections
+                history.slice(-10).reverse().forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+
+                    const time = new Date(item.timestamp).toLocaleTimeString();
+
+                    div.innerHTML = `
+                        <div>
+                            <div class="gesture-name">${item.gesture}</div>
+                            <div class="gesture-time">${time}</div>
+                        </div>
+                        <div class="gesture-confidence">${item.confidence.toFixed(1)}%</div>
+                    `;
+
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error updating history:', error);
+            }
+        }
+
+        // Update stats
+        async function updateStats() {
+            try {
+                const response = await fetch('/api/gesture_stats');
+                const stats = await response.json();
+
+                document.getElementById('totalDetections').textContent = stats.total_detections;
+                document.getElementById('uniqueGestures').textContent = stats.unique_gestures;
+
+                // Update chart
+                updateChart(stats.top_gestures);
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+        // Update chart
+        function updateChart(topGestures) {
+            const container = document.getElementById('topGesturesChart');
+            container.innerHTML = '';
+
+            if (Object.keys(topGestures).length === 0) {
+                container.innerHTML = '<div class="empty-state">No data available</div>';
+                return;
+            }
+
+            const maxValue = Math.max(...Object.values(topGestures));
+
+            for (const [gesture, count] of Object.entries(topGestures)) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                const height = (count / maxValue) * 100;
+                bar.style.height = `${height}%`;
+
+                bar.innerHTML = `
+                    <div class="bar-value">${count}</div>
+                    <div class="bar-label">${gesture}</div>
+                `;
+
+                container.appendChild(bar);
+            }
+        }
+
+        // Toggle detection
+        async function toggleDetection() {
+            try {
+                const response = await fetch('/api/toggle_detection', { method: 'POST' });
+                const data = await response.json();
+
+                detectionActive = data.active;
+                const btn = document.getElementById('toggleText');
+
+                if (detectionActive) {
+                    btn.textContent = 'Pause';
+                    btn.previousElementSibling.className = 'fas fa-pause';
+                } else {
+                    btn.textContent = 'Resume';
+                    btn.previousElementSibling.className = 'fas fa-play';
+                }
+            } catch (error) {
+                console.error('Error toggling detection:', error);
+            }
+        }
+
+        // Clear history
+        async function clearHistory() {
+            if (confirm('Clear all detection history?')) {
+                try {
+                    await fetch('/api/clear_history', { method: 'POST' });
+                    updateHistory();
+                    updateStats();
+                } catch (error) {
+                    console.error('Error clearing history:', error);
+                }
+            }
+        }
+
+        // Take snapshot
+        function takeSnapshot() {
+            const video = document.getElementById('videoStream');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.naturalWidth;
+            canvas.height = video.naturalHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `gesture_${Date.now()}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Initialize
+        loadGestureLibrary();
+
+        // Update intervals
+        setInterval(updateCurrentGesture, 100);
+        setInterval(updateHistory, 1000);
+        setInterval(updateStats, 2000);
+    </script>
+</body>
+
+</html>

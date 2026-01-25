@@ -1,14 +1,14 @@
 === Macro Average ===
-Precision: 0.8591
-Recall   : 0.8340
-F1-score : 0.8317
+Precision: 0.9316
+Recall   : 0.9122
+F1-score : 0.9078
 
 === Micro Average ===
-Precision: 0.8340
-Recall   : 0.8340
-F1-score : 0.8340
+Precision: 0.9112
+Recall   : 0.9112
+F1-score : 0.9112
 
 === Weighted Average ===
-Precision: 0.8591
-Recall   : 0.8340
-F1-score : 0.8317
+Precision: 0.9332
+Recall   : 0.9112
+F1-score : 0.9080

@@ -75,7 +75,7 @@ def extract_hand_features(hand_landmarks):
 participant_id = input("Enter participant number (1-6): ")
 gesture_id = input("Enter gesture ID (1-25): ")
 
-save_dir = f"dataset/participant_{participant_id}/gesture_{gesture_id}"
+save_dir = f"dataset/Raw/participant_{participant_id}/gesture_{gesture_id}"
 os.makedirs(save_dir, exist_ok=True)
 
 cap = cv2.VideoCapture(0)
